@@ -1,4 +1,7 @@
 package com.pablo.dronecup.repository;
 
-public interface EventRepository {
+import com.pablo.dronecup.api.model.Event;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EventRepository extends JpaRepository<Event, Long> {
 }
