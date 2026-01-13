@@ -19,7 +19,7 @@ public class Team {
     @Column(length = 100)
     private String country;
 
-    // Relación correcta: mappedBy apunta al atributo "team" dentro de Pilot
+
     @OneToMany(mappedBy = "team")
     private List<Pilot> pilots = new ArrayList<>();
 

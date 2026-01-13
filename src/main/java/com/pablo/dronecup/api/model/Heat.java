@@ -78,3 +78,4 @@ public class Heat {
                 ", number=" + number +
                 '}';
     }
+}
