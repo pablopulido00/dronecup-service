@@ -5,4 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface HeatEntryRepository extends JpaRepository<HeatEntry, Long> {
 
+    boolean existsByHeatIdAndPilotId(Long heatId, Long pilotId);
+
+    boolean existsByHeatIdAndStartPosition (Long heatId, Integer StartPosition);
+
 }
