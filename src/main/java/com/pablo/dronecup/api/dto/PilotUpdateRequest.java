@@ -8,16 +8,16 @@ public class PilotUpdateRequest {
     private String nationality;
     private Integer age;
     private Long teamId;
-    private Long droneId;
+
 
     public PilotUpdateRequest(){}
 
-    public PilotUpdateRequest(String name, String nationality, Integer age, Long teamId, Long droneId) {
+    public PilotUpdateRequest(String name, String nationality, Integer age, Long teamId) {
         this.name = name;
         this.nationality = nationality;
         this.age = age;
         this.teamId = teamId;
-        this.droneId = droneId;
+
     }
 
     public String getName() {
@@ -52,23 +52,17 @@ public class PilotUpdateRequest {
         this.teamId = teamId;
     }
 
-    public Long getDroneId() {
-        return droneId;
-    }
 
-    public void setDroneId(Long droneId) {
-        this.droneId = droneId;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof PilotUpdateRequest that)) return false;
-        return Objects.equals(name, that.name) && Objects.equals(nationality, that.nationality) && Objects.equals(age, that.age) && Objects.equals(teamId, that.teamId) && Objects.equals(droneId, that.droneId);
+        return Objects.equals(name, that.name) && Objects.equals(nationality, that.nationality) && Objects.equals(age, that.age) && Objects.equals(teamId, that.teamId) ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, nationality, age, teamId, droneId);
+        return Objects.hash(name, nationality, age, teamId);
     }
 
     @Override
@@ -78,7 +72,7 @@ public class PilotUpdateRequest {
                 ", nationality='" + nationality + '\'' +
                 ", age=" + age +
                 ", teamId=" + teamId +
-                ", droneId=" + droneId +
+
                 '}';
     }
 }
