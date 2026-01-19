@@ -43,4 +43,44 @@ public class HeatResultCreateRequest {
                 ", heatEntryId=" + heatEntryId +
                 '}';
     }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
+    }
+
+    public Double getBestLapTime() {
+        return bestLapTime;
+    }
+
+    public void setBestLapTime(Double bestLapTime) {
+        this.bestLapTime = bestLapTime;
+    }
+
+    public Double getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(Double totalTime) {
+        this.totalTime = totalTime;
+    }
+
+    public Integer getPenalties() {
+        return penalties;
+    }
+
+    public void setPenalties(Integer penalties) {
+        this.penalties = penalties;
+    }
+
+    public Long getHeatEntryId() {
+        return heatEntryId;
+    }
+
+    public void setHeatEntryId(Long heatEntryId) {
+        this.heatEntryId = heatEntryId;
+    }
 }
