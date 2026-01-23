@@ -3,6 +3,8 @@ package com.pablo.dronecup.api.service;
 import com.pablo.dronecup.api.dto.DroneCreateRequest;
 import com.pablo.dronecup.api.dto.DroneResponse;
 import com.pablo.dronecup.api.dto.DroneUpdateRequest;
+import com.pablo.dronecup.api.exception.ConflictException;
+import com.pablo.dronecup.api.exception.NotFoundException;
 import com.pablo.dronecup.api.model.Drone;
 import com.pablo.dronecup.api.repository.DroneRepository;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,7 @@ public class DroneService {
     public DroneResponse getDroneById(Long id) {
 
         Drone drone = droneRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Drone no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Drone con id=" + id + "no existe"));
 
         return new DroneResponse(
                 drone.getId(),
@@ -58,7 +60,7 @@ public class DroneService {
     public DroneResponse updateDrone(Long id, DroneUpdateRequest request) {
 
         Drone drone = droneRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Drone no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Drone con id=" + id + "no existe"));
 
         if (request.getModel() != null) {
             drone.setModel(request.getModel());
@@ -80,10 +82,10 @@ public class DroneService {
     public void deleteDrone(Long id) {
 
         Drone drone = droneRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Drone no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Drone con id=" + id + "no existe"));
 
         if (drone.getPilot() != null) {
-            throw new RuntimeException("No se puede eliminar un dron asignado a un piloto");
+            throw new ConflictException(  "No se puede eliminar un dron asignado a un piloto");
         }
 
         droneRepository.delete(drone);

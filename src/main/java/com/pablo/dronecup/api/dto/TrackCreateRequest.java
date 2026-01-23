@@ -1,10 +1,17 @@
 package com.pablo.dronecup.api.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.util.Objects;
 
 public class TrackCreateRequest {
 
+    @NotBlank
+    @Size(min = 1, max = 100)
     private String name;
+    @NotBlank
+    @Size(min = 1, max = 100)
     private String location;
 
     public TrackCreateRequest() {

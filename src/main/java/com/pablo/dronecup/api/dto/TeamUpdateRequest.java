@@ -1,10 +1,18 @@
 package com.pablo.dronecup.api.dto;
 
+
+import jakarta.validation.constraints.Size;
+
 import java.util.Objects;
 
 public class TeamUpdateRequest {
 
+
+    @Size(max = 100)
     private String name;
+
+
+    @Size(max = 50)
     private String country;
 
     public TeamUpdateRequest() {

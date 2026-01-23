@@ -4,6 +4,8 @@ package com.pablo.dronecup.api.service;
 import com.pablo.dronecup.api.dto.ChampionshipCreateRequest;
 import com.pablo.dronecup.api.dto.ChampionshipResponse;
 import com.pablo.dronecup.api.dto.ChampionshipUpdateRequest;
+import com.pablo.dronecup.api.exception.ConflictException;
+import com.pablo.dronecup.api.exception.NotFoundException;
 import com.pablo.dronecup.api.model.Championship;
 import com.pablo.dronecup.api.repository.ChampionshipRepository;
 import com.pablo.dronecup.api.repository.StandingRepository;
@@ -27,20 +29,20 @@ public class ChampionshipService {
         List<Championship> championships = championshipRepository.findAll();
 
         if (championships.isEmpty()) {
-            throw new RuntimeException("No hay ningún Championship en la BD");
+            throw new NotFoundException("No hay ningún Championship en la BD");
         }
 
         if (championships.size() > 1) {
-            throw new RuntimeException("Se esperaba 1 Championship en la BD, pero hay " + championships.size());
+            throw new ConflictException("Se esperaba 1 Championship en la BD, pero hay " + championships.size());
         }
 
         return championships.get(0);
     }
 
-    public ChampionshipResponse createChammpionship (ChampionshipCreateRequest request){
+    public ChampionshipResponse createChampionship (ChampionshipCreateRequest request){
 
         if (championshipRepository.count() > 0){
-            throw new RuntimeException("Ya existe un Championship en la BD. Solo se permite 1");
+            throw new ConflictException("Ya existe un Championship en la BD. Solo se permite 1");
         }
 
         Championship championship = new Championship();
@@ -61,6 +63,16 @@ public class ChampionshipService {
     public Championship getChampionship(){
         return getSingleChampionship();
     }
+
+    public ChampionshipResponse getChampionshipResponse() {
+        Championship championship = getChampionship(); // reutiliza el que ya tienes
+        return new ChampionshipResponse(
+                championship.getId(),
+                championship.getName().trim(),
+                championship.getSeasonYear()
+        );
+    }
+
 
 
     public ChampionshipResponse updateChampionship (ChampionshipUpdateRequest request){
@@ -94,7 +106,7 @@ public class ChampionshipService {
 
 
         if (standingsCount > 0){
-            throw new RuntimeException("No se puede borrar un championship con standings asociados");
+            throw new ConflictException("No se puede borrar un championship con standings asociados");
         }
 
         championshipRepository.delete(championship);

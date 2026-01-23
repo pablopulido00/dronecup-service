@@ -1,13 +1,30 @@
 package com.pablo.dronecup.api.dto;
 
+import jakarta.validation.constraints.*;
+
 import java.util.Objects;
 
 public class HeatResultCreateRequest {
 
+    @NotNull
+    @Min(1)
+    @Max(10)
     private Integer position;
+
+    @NotNull
+    @PositiveOrZero
     private Double bestLapTime;
+
+    @NotNull
+    @PositiveOrZero
     private Double totalTime;
+
+    @NotNull
+    @PositiveOrZero
     private Integer penalties;
+
+    @NotNull
+    @Positive
     private Long heatEntryId;
 
     public HeatResultCreateRequest() {

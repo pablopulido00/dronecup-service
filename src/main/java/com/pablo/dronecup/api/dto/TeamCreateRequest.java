@@ -1,11 +1,21 @@
 package com.pablo.dronecup.api.dto;
 
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.util.Objects;
 
 public class TeamCreateRequest {
 
 
+
+    @NotBlank
+    @Size(max = 100)
     private String name;
+
+    @NotBlank
+    @Size(max = 50)
     private String country;
 
     public TeamCreateRequest(){}

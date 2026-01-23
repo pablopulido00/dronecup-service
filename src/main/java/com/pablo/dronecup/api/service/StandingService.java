@@ -1,5 +1,8 @@
 package com.pablo.dronecup.api.service;
 
+import com.pablo.dronecup.api.dto.StandingResponse;
+import com.pablo.dronecup.api.exception.ConflictException;
+import com.pablo.dronecup.api.exception.NotFoundException;
 import com.pablo.dronecup.api.model.Championship;
 import com.pablo.dronecup.api.model.HeatResult;
 import com.pablo.dronecup.api.model.Pilot;
@@ -9,6 +12,7 @@ import com.pablo.dronecup.api.repository.HeatResultRepository;
 import com.pablo.dronecup.api.repository.PilotRepository;
 import com.pablo.dronecup.api.repository.StandingRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,11 +38,11 @@ public class StandingService {
         List<Championship> championships = championshipRepository.findAll();
 
         if (championships.isEmpty()){
-            throw new RuntimeException("No hay ningun championship en la BD");
+            throw new NotFoundException("No hay ningun championship en la BD");
         }
 
         if (championships.size() > 1){
-            throw new RuntimeException("Se esperaba 1 championship en la BD y hay " + championships.size());
+            throw new ConflictException("Se esperaba 1 championship en la BD y hay " + championships.size());
         }
 
         return championships.get(0);
@@ -65,7 +69,22 @@ public class StandingService {
         };
     }
 
+    public List<StandingResponse> getStandings() {
+        Championship championship = getSimpleChampionship();
 
+        return standingRepository
+                .findAllByOrderByPointsDesc()
+                .stream()
+                .map(s -> new StandingResponse(
+                        s.getId(),
+                        s.getPilot().getId(),
+                        s.getPilot().getName(),
+                        s.getPoints()
+                ))
+                .toList();
+    }
+
+    @Transactional
     public void recalculateStandings () {
 
         Championship championship = getSimpleChampionship();
@@ -95,26 +114,22 @@ public class StandingService {
         }
 
 
-       for (Pilot pilot : pilots){
+        for (Pilot pilot : pilots){
 
-           int totalPoints = pointsBypilotId.getOrDefault(pilot.getId(), 0);
+            int totalPoints = pointsBypilotId.getOrDefault(pilot.getId(), 0);
 
-           Standing standing = standingRepository
-                   .findByChampioshipAndPilotId(championship.getId(), pilot.getId())
-                   .orElseGet(Standing::new);
+            Standing standing = standingRepository
+                    .findByChampionshipIdAndPilotId(championship.getId(), pilot.getId())
+                    .orElseGet(Standing::new);
 
-           standing.setChampionship(championship);
-           standing.setPilot(pilot);
-           standing.setPoints(totalPoints);
+            standing.setChampionship(championship);
+            standing.setPilot(pilot);
+            standing.setPoints(totalPoints);
 
-           standingRepository.save(standing);
+            standingRepository.save(standing);
 
-       }
-
-
+        }
 
     }
-
-
 
 }

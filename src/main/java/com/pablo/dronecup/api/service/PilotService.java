@@ -1,6 +1,8 @@
 package com.pablo.dronecup.api.service;
 
 import com.pablo.dronecup.api.dto.*;
+import com.pablo.dronecup.api.exception.ConflictException;
+import com.pablo.dronecup.api.exception.NotFoundException;
 import com.pablo.dronecup.api.model.Drone;
 import com.pablo.dronecup.api.model.Pilot;
 import com.pablo.dronecup.api.model.Team;
@@ -27,13 +29,13 @@ public class PilotService {
     public PilotResponse createPilot(PilotCreateRequest request) {
 
         Team team = teamRepository.findById(request.getTeamId())
-                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Equipo no encontrado"));
 
         Drone drone = droneRepository.findById(request.getDroneId())
-                .orElseThrow(() -> new RuntimeException("Drone no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Drone no encontrado"));
 
         if (drone.getPilot() != null) {
-            throw new RuntimeException("El drone ya esta asignado a otro piloto");
+            throw new ConflictException("El drone ya esta asignado a otro piloto");
         }
 
         Pilot pilot = new Pilot();
@@ -66,10 +68,10 @@ public class PilotService {
         );
     }
 
-        public PilotResponse updatePilot (Long id, PilotUpdateRequest request){
+    public PilotResponse updatePilot (Long id, PilotUpdateRequest request){
 
         Pilot pilot = pilotRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Piloto no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Piloto no encontrado"));
 
 
         if (request.getName() != null){
@@ -84,13 +86,7 @@ public class PilotService {
             pilot.setAge(request.getAge());
         }
 
-        if (request.getTeamId() != null){
 
-            Team newTeam = teamRepository.findById(request.getTeamId())
-                    .orElseThrow(()-> new RuntimeException("Equipo no encontrado"));
-
-            pilot.setTeam(newTeam);
-        }
 
         Pilot pilotUpdated = pilotRepository.save(pilot);
 
@@ -111,11 +107,11 @@ public class PilotService {
 
                 )
         );
-        }
+    }
 
     public PilotResponse getPilotById (Long id){
         Pilot pilot = pilotRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Piloto no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Piloto no encontrado"));
 
         return new PilotResponse(
                 pilot.getId(),
@@ -128,8 +124,8 @@ public class PilotService {
                         pilot.getTeam().getCountry()
                 ),
                 new DroneSummary(
-                      pilot.getDrone().getId(),
-                      pilot.getDrone().getModel()
+                        pilot.getDrone().getId(),
+                        pilot.getDrone().getModel()
                 )
         );
     }
@@ -147,9 +143,9 @@ public class PilotService {
                                 pilot.getTeam().getCountry()
                         ),
                         new DroneSummary(
-                             pilot.getDrone().getId(),
-                             pilot.getDrone().getModel()
-                )
+                                pilot.getDrone().getId(),
+                                pilot.getDrone().getModel()
+                        )
                 ))
                 .toList();
     }
@@ -157,7 +153,7 @@ public class PilotService {
     public void deletePilot (Long id){
 
         Pilot pilot = pilotRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Piloto no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Piloto no encontrado"));
 
         pilot.setDrone(null);
 

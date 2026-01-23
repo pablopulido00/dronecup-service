@@ -1,6 +1,8 @@
 package com.pablo.dronecup.api.service;
 
 import com.pablo.dronecup.api.dto.*;
+import com.pablo.dronecup.api.exception.ConflictException;
+import com.pablo.dronecup.api.exception.NotFoundException;
 import com.pablo.dronecup.api.model.Event;
 import com.pablo.dronecup.api.model.Track;
 import com.pablo.dronecup.api.repository.EventRepository;
@@ -23,7 +25,7 @@ public class EventService {
     public EventResponse createEvent (EventCreateRequest request){
 
         Track track = trackRepository.findById(request.getTrackId())
-                .orElseThrow(()-> new RuntimeException("Track no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Track con id=" + request.getTrackId() + "no existe"));
 
         Event event = new Event();
 
@@ -50,21 +52,21 @@ public class EventService {
     public EventResponse getEventById (Long id){
 
         Event event =  eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Event con id=" + id + "no existe"));
 
         return new EventResponse (
                 event.getId(),
                 event.getName(),
                 event.getDate(),
                 new TrackSummary(
-                     event.getTrack().getId(),
-                     event.getTrack().getName(),
-                     event.getTrack().getLocation()
+                        event.getTrack().getId(),
+                        event.getTrack().getName(),
+                        event.getTrack().getLocation()
                 ),
                 event.getHeats().stream()
                         .map(heat -> new HeatSummary(
-                               heat.getId(),
-                               heat.getName()
+                                heat.getId(),
+                                heat.getName()
                         )).toList()
         );
 
@@ -74,7 +76,7 @@ public class EventService {
     public EventResponse updateEvent (Long id, EventUpdateRequest request){
 
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Event no encontrado"));
 
         if (request.getName() != null){
             event.setName(request.getName());
@@ -88,7 +90,7 @@ public class EventService {
 
 
             Track newTrack = trackRepository.findById(request.getTrackId())
-                    .orElseThrow(() -> new RuntimeException("Track no encontrado"));
+                    .orElseThrow(() -> new NotFoundException("Track con id=" + request.getTrackId() + "no existe"));
 
             event.setTrack(newTrack);
 
@@ -121,30 +123,30 @@ public class EventService {
     public List<EventResponse> getAllEvents (){
         return eventRepository.findAll().stream()
                 .map(event -> new EventResponse(
-                        event.getId(),
-                        event.getName(),
-                        event.getDate(),
-                        new TrackSummary(
-                                event.getTrack().getId(),
-                                event.getTrack().getName(),
-                                event.getTrack().getLocation()
-                        ),
-                        event.getHeats().stream()
-                                .map( heat -> new HeatSummary(
-                                        heat.getId(),
-                                        heat.getName()
-                                        )
-                                ).toList()
+                                event.getId(),
+                                event.getName(),
+                                event.getDate(),
+                                new TrackSummary(
+                                        event.getTrack().getId(),
+                                        event.getTrack().getName(),
+                                        event.getTrack().getLocation()
+                                ),
+                                event.getHeats().stream()
+                                        .map( heat -> new HeatSummary(
+                                                        heat.getId(),
+                                                        heat.getName()
+                                                )
+                                        ).toList()
                         )
                 ).toList();
     }
 
     public void deleteEvent (Long id){
         Event event =  eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Event con id=" + id + "no existe"));
 
         if (!event.getHeats().isEmpty()){
-            throw new RuntimeException("No se puede borrar un Event con heats asociados");
+            throw new ConflictException("No se puede borrar un Event con heats asociados");
 
         }
 

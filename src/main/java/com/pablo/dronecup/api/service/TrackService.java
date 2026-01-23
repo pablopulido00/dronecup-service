@@ -4,6 +4,8 @@ import com.pablo.dronecup.api.dto.EventSummary;
 import com.pablo.dronecup.api.dto.TrackCreateRequest;
 import com.pablo.dronecup.api.dto.TrackResponse;
 import com.pablo.dronecup.api.dto.TrackUpdateRequest;
+import com.pablo.dronecup.api.exception.ConflictException;
+import com.pablo.dronecup.api.exception.NotFoundException;
 import com.pablo.dronecup.api.model.Track;
 import com.pablo.dronecup.api.repository.TrackRepository;
 import org.springframework.stereotype.Service;
@@ -12,7 +14,6 @@ import java.util.List;
 
 @Service
 public class TrackService {
-
 
     private final TrackRepository trackRepository;
 
@@ -35,31 +36,23 @@ public class TrackService {
                 trackSaved.getLocation(),
                 List.of()
         );
-
-
-
-
     }
-
 
     public TrackResponse getTrackById (Long id){
 
         Track track = trackRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Track no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Track no encontrado"));
 
         return new TrackResponse(
-          track.getId(),
-          track.getName(),
-          track.getLocation(),
-          track.getEvents().stream()
-                  .map(event -> new EventSummary(
-                          event.getId(),
-                          event.getName()
-                  )).toList()
+                track.getId(),
+                track.getName(),
+                track.getLocation(),
+                track.getEvents().stream()
+                        .map(event -> new EventSummary(
+                                event.getId(),
+                                event.getName()
+                        )).toList()
         );
-
-
-
     }
 
     public List<TrackResponse> getAllTracks (){
@@ -79,7 +72,7 @@ public class TrackService {
     public TrackResponse updateTrack (Long id, TrackUpdateRequest request){
 
         Track track = trackRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Track no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Track no encontrado"));
 
         if (request.getName() != null){
             track.setName(request.getName());
@@ -107,11 +100,10 @@ public class TrackService {
     public void deleteTrack (Long id){
 
         Track track = trackRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Track no encontrado"));
-
+                .orElseThrow(() -> new NotFoundException("Track no encontrado"));
 
         if (!track.getEvents().isEmpty()){
-            throw new RuntimeException(("No se puede borrar un track con eventos asociados");
+            throw new ConflictException("No se puede borrar un track con eventos asociados");
         }
 
         trackRepository.delete(track);

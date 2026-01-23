@@ -1,23 +1,28 @@
 package com.pablo.dronecup.api.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
+
 import java.util.Objects;
 
 public class PilotUpdateRequest {
 
+    @Size(min = 1, max = 100)
     private String name;
+
+    @Size(min = 1, max = 50)
     private String nationality;
+
+    @Min(1)
     private Integer age;
-    private Long teamId;
 
+    public PilotUpdateRequest() {
+    }
 
-    public PilotUpdateRequest(){}
-
-    public PilotUpdateRequest(String name, String nationality, Integer age, Long teamId) {
+    public PilotUpdateRequest(String name, String nationality, Integer age) {
         this.name = name;
         this.nationality = nationality;
         this.age = age;
-        this.teamId = teamId;
-
     }
 
     public String getName() {
@@ -44,25 +49,18 @@ public class PilotUpdateRequest {
         this.age = age;
     }
 
-    public Long getTeamId() {
-        return teamId;
-    }
-
-    public void setTeamId(Long teamId) {
-        this.teamId = teamId;
-    }
-
-
-
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (!(o instanceof PilotUpdateRequest that)) return false;
-        return Objects.equals(name, that.name) && Objects.equals(nationality, that.nationality) && Objects.equals(age, that.age) && Objects.equals(teamId, that.teamId) ;
+        return Objects.equals(name, that.name)
+                && Objects.equals(nationality, that.nationality)
+                && Objects.equals(age, that.age);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, nationality, age, teamId);
+        return Objects.hash(name, nationality, age);
     }
 
     @Override
@@ -71,8 +69,6 @@ public class PilotUpdateRequest {
                 "name='" + name + '\'' +
                 ", nationality='" + nationality + '\'' +
                 ", age=" + age +
-                ", teamId=" + teamId +
-
                 '}';
     }
 }

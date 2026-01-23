@@ -1,15 +1,30 @@
 package com.pablo.dronecup.api.dto;
 
 import com.pablo.dronecup.api.model.Pilot;
+import jakarta.validation.constraints.*;
 
 import java.util.Objects;
 
 public class PilotCreateRequest {
 
+    @NotBlank
+    @Size(max = 100)
     private String name;
+
+    @NotBlank
+    @Size(max = 50)
     private String nationality;
+
+    @NotNull
+    @Min(1)
     private Integer age;
+
+    @NotNull
+    @Positive
     private Long teamId;
+
+    @NotNull
+    @Positive
     private Long droneId;
 
     public PilotCreateRequest (){}

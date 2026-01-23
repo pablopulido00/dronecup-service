@@ -1,10 +1,18 @@
 package com.pablo.dronecup.api.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
+
 import java.util.Objects;
 
 public class ChampionshipUpdateRequest {
 
+    @Size(min = 1 , max=100)
     private String name;
+
+    @Min(1900)
+    @Max(2100)
     private Integer seasonYear;
 
     public ChampionshipUpdateRequest() {

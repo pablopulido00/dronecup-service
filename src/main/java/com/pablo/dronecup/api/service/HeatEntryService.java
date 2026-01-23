@@ -4,6 +4,8 @@ import com.pablo.dronecup.api.dto.HeatEntryCreateRequest;
 import com.pablo.dronecup.api.dto.HeatEntryResponse;
 import com.pablo.dronecup.api.dto.HeatEntryUpdateRequest;
 import com.pablo.dronecup.api.dto.HeatResultSummary;
+import com.pablo.dronecup.api.exception.ConflictException;
+import com.pablo.dronecup.api.exception.NotFoundException;
 import com.pablo.dronecup.api.model.Heat;
 import com.pablo.dronecup.api.model.HeatEntry;
 import com.pablo.dronecup.api.model.Pilot;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class HeatEntryService {
 
-
     private final HeatEntryRepository heatEntryRepository;
     private final PilotRepository pilotRespository;
     private final HeatRepository heatRepository;
@@ -26,41 +27,28 @@ public class HeatEntryService {
         this.heatRepository = heatRepository;
     }
 
-
-    public HeatEntryResponse createHeatEntry (HeatEntryCreateRequest request){
+    public HeatEntryResponse createHeatEntry(HeatEntryCreateRequest request) {
 
         Pilot pilot = pilotRespository.findById(request.getPilotId())
-                .orElseThrow(() -> new RuntimeException("Piloto no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Pilot con id=" + request.getPilotId() + "no existe"));
 
         Heat heat = heatRepository.findById(request.getHeatId())
-                .orElseThrow(() -> new RuntimeException("Heat no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Heat con id=" + request.getHeatId() + "no existe"));
 
-        if (heatEntryRepository.existsByHeatIdAndPilotId(heat.getId(), pilot.getId())){
-            throw new RuntimeException("El piloto " + pilot.getName() +" ya esta inscrito en ese heat");
+        if (heatEntryRepository.existsByHeatIdAndPilotId(heat.getId(), pilot.getId())) {
+            throw new ConflictException("El piloto " + pilot.getName() + " ya esta inscrito en ese heat");
         }
 
-        if (request.getStartPosicion() == null || request.getStartPosicion() < 1){
-            throw new RuntimeException("El HeatEntry debe tener una posicion inicial y debe ser 1 o mayor");
-        }
-
-        if (request.getStartPosicion() < 1 || request.getStartPosicion() > 10) {
-            throw new RuntimeException("La posición de salida debe estar entre 1 y 10");
-        }
-
-        if (heatEntryRepository.existsByHeatIdAndStartPosition(heat.getId(), request.getStartPosicion())){
-            throw new RuntimeException("La posicion de salida" + request.getStartPosicion() + " ya esta ocupada" );
-
+        if (heatEntryRepository.existsByHeatIdAndStartPosition(heat.getId(), request.getStartPosicion())) {
+            throw new ConflictException("La posicion de salida" + request.getStartPosicion() + " ya esta ocupada");
         }
 
         HeatEntry heatEntry = new HeatEntry();
-
         heatEntry.setStartPosition(request.getStartPosicion());
         heatEntry.setPilot(pilot);
         heatEntry.setHeat(heat);
 
-
         HeatEntry heatEntrySaved = heatEntryRepository.save(heatEntry);
-
 
         return new HeatEntryResponse(
                 heatEntrySaved.getId(),
@@ -68,56 +56,39 @@ public class HeatEntryService {
                 heatEntrySaved.getPilot().getId(),
                 heatEntrySaved.getHeat().getId(),
                 heatEntrySaved.getHeatResult() == null
-                ? null
-                : new HeatResultSummary(
+                        ? null
+                        : new HeatResultSummary(
                         heatEntrySaved.getHeatResult().getPosition(),
                         heatEntrySaved.getHeatResult().getBestLapTime(),
                         heatEntrySaved.getHeatResult().getTotalTime(),
                         heatEntrySaved.getHeatResult().getPenalties()
                 )
-
-
         );
-
     }
 
     public HeatEntryResponse updateHeatEntry(Long id, HeatEntryUpdateRequest request) {
 
         HeatEntry heatEntry = heatEntryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("HeatEntry no encontrado"));
+                .orElseThrow(() -> new NotFoundException("HeatEntry con id=" + id + "no existe"));
 
-        if (request.getHeatId() != null) {
-            throw new RuntimeException("No se puede cambiar el heat de un heatEntry");
+        if (heatEntry.getHeatResult() != null) {
+            throw new ConflictException("No se puede actualizar un heatEntry con u heatResult asociado");
         }
-
-        if (request.getPilotId() != null) {
-            throw new RuntimeException("No se puede camniar un piloto de heatEntry");
-        }
-
-        if (heatEntry.getHeatResult() != null){
-            throw new RuntimeException("No se puede actualizar un heatEntry conu heatResult asociado");
-        }
-
 
         if (request.getStartPosicion() != null) {
 
-
-            // Solo si cambia (para no considerarte "duplicado" a ti mismo)
             if (!request.getStartPosicion().equals(heatEntry.getStartPosition())) {
 
-                // Duplicado con otro HeatEntry del mismo heat
-                if (heatEntryRepository.existsByHeatIdAndStartPosition(heatEntry.getHeat().getId(), newPos)) {
-                    throw new RuntimeException("No se puede asignar la misma posición inicial dentro de un heat");
+                if (heatEntryRepository.existsByHeatIdAndStartPosition(
+                        heatEntry.getHeat().getId(),
+                        request.getStartPosicion()
+                )) {
+                    throw new ConflictException("No se puede asignar la misma posición inicial dentro de un heat");
                 }
 
-                // Aplicar cambio
                 heatEntry.setStartPosition(request.getStartPosicion());
             }
-
-            // Si es igual, no hacemos nada (update idempotente)
         }
-
-
 
         HeatEntry heatEntryUpdated = heatEntryRepository.save(heatEntry);
 
@@ -125,35 +96,28 @@ public class HeatEntryService {
                 heatEntryUpdated.getId(),
                 heatEntryUpdated.getStartPosition(),
                 heatEntryUpdated.getPilot().getId(),
-                heatEntry.getHeat().getId(),
-                null
-
+                heatEntryUpdated.getHeat().getId(),
+                heatEntryUpdated.getHeatResult() == null
+                        ? null
+                        : new HeatResultSummary(
+                        heatEntryUpdated.getHeatResult().getPosition(),
+                        heatEntryUpdated.getHeatResult().getBestLapTime(),
+                        heatEntryUpdated.getHeatResult().getTotalTime(),
+                        heatEntryUpdated.getHeatResult().getPenalties()
+                )
         );
-
     }
 
-    public void  deleteHeatEntry (Long id){
+
+    public void deleteHeatEntry(Long id) {
 
         HeatEntry heatEntry = heatEntryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("HeatEntry no encontado"));
+                .orElseThrow(() -> new NotFoundException("HeatEntry con id=" + id + "no existe"));
 
-        if (heatEntry.getHeatResult() != null){
-            throw new RuntimeException("No se puede borrar un HeatEntry con un heatResult asociado");
+        if (heatEntry.getHeatResult() != null) {
+            throw new ConflictException("No se puede borrar un HeatEntry con un heatResult asociado");
         }
 
         heatEntryRepository.delete(heatEntry);
-
-
-
-
     }
-
-
-
-
-
-
-
-
-
 }

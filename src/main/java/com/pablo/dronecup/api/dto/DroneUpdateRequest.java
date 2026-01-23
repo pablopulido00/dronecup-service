@@ -1,11 +1,15 @@
 package com.pablo.dronecup.api.dto;
 
+import jakarta.validation.constraints.Size;
+
 import java.util.Objects;
 
 public class DroneUpdateRequest {
 
-
+    @Size(min = 1, max =100)
     private String model;
+
+    @Size(min = 1, max =100)
     private String manufacturer;
 
     public DroneUpdateRequest() {

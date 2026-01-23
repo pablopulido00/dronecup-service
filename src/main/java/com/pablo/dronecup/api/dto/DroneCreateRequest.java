@@ -1,10 +1,18 @@
 package com.pablo.dronecup.api.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.util.Objects;
 
 public class DroneCreateRequest {
 
+    @NotBlank
+    @Size(max = 100)
     private String model;
+
+    @NotBlank
+    @Size(max = 100)
     private String manufacturer;
 
     public DroneCreateRequest() {

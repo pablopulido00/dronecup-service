@@ -1,12 +1,22 @@
 package com.pablo.dronecup.api.dto;
 
+import jakarta.validation.constraints.*;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class EventCreateRequest {
 
+    @NotBlank
+    @Size(max = 100)
     private String name;
+
+    @NotNull
+    @PastOrPresent
     private LocalDate date;
+
+    @NotNull
+    @Positive
     private Long trackId;
 
     public EventCreateRequest() {
