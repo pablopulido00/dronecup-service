@@ -4,7 +4,6 @@ package com.pablo.dronecup.api.controller;
 import com.pablo.dronecup.api.dto.TeamCreateRequest;
 import com.pablo.dronecup.api.dto.TeamResponse;
 import com.pablo.dronecup.api.dto.TeamUpdateRequest;
-import com.pablo.dronecup.api.model.Team;
 import com.pablo.dronecup.api.service.TeamService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -29,7 +28,7 @@ public class TeamController {
 
     @GetMapping("/{id}")
     public TeamResponse getTeamById(@PathVariable Long id){
-        return teamService.getTimeById(id);
+        return teamService.getTeamById(id);
     }
 
     @PutMapping("/{id}")
