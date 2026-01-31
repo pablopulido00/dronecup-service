@@ -35,6 +35,10 @@ public class Standing {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Integer getPoints() {
         return points;
     }

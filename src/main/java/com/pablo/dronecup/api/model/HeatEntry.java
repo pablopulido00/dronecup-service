@@ -38,6 +38,8 @@ public class HeatEntry {
         return id;
     }
 
+    public void setId(Long id) {this.id = id; }
+
     public Integer getStartPosition() {
         return startPosition;
     }

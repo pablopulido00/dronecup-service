@@ -43,6 +43,10 @@ public class HeatResult {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Integer getPosition() {
         return position;
     }
