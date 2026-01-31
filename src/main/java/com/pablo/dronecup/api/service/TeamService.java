@@ -21,6 +21,7 @@ public class TeamService {
         this.teamRepository = teamRepository;
     }
 
+
     public TeamResponse createTeam(TeamCreateRequest request) {
 
         Team team = new Team();
@@ -37,7 +38,7 @@ public class TeamService {
         );
     }
 
-    public TeamResponse getTimeById(Long id) {
+    public TeamResponse getTeamById(Long id) {
 
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Equipo no encontrado"));
