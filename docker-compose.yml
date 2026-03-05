@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: dronecup-mysql
+    environment:
+      MYSQL_DATABASE: dronecup
+      MYSQL_USER: dronecup
+      MYSQL_PASSWORD: dronecup
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - dronecup_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  api:
+    image: dronecup:local
+    container_name: dronecup-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/dronecup?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: dronecup
+      SPRING_DATASOURCE_PASSWORD: dronecup
+      PORT: 8080
+      SHOW_SQL: "false"
+      FORMAT_SQL: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  dronecup_mysql_data:
